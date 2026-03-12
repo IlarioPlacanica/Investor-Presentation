@@ -340,14 +340,14 @@ p {
 
     .glb-viewer-section {
         position: relative;
-        min-height: 100svh;
+        padding: 0;
         background: #f3f3f3;
     }
 
     .three-viewer {
         position: relative;
         width: 100%;
-        min-height: 100svh;
+        height: clamp(420px, 70vh, 760px);
         overflow: hidden;
         background: #f3f3f3;
     }
@@ -393,5 +393,13 @@ p {
         color: #333;
         background: #f3f3f3;
         z-index: 5;
+    }
+
+    @media (max-width: 680px) {
+        .three-viewer {
+            height: 58vh;
+            min-height: 360px;
+            max-height: 520px;
+        }
     }
 }
