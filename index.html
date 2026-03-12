@@ -3,258 +3,97 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CASTELLO | Operazione immobiliare</title>
+    <title>CASTELLO</title>
     <meta
       name="description"
-      content="CASTELLO - Operazione immobiliare di nuova generazione."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
+      content="CASTELLO - viewer immersivo con transizioni video tra camere."
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="site-header" id="siteHeader">
-      <div class="container header-inner">
-        <a href="#top" class="brand">CASTELLO</a>
+    <header class="site-header">
+      <div class="logo">CASTELLO</div>
 
-        <button class="menu-toggle" id="menuToggle" aria-label="Apri menu">
-          <span></span>
-          <span></span>
-        </button>
-
-        <nav class="site-nav" id="siteNav">
-          <a href="#progetto">Progetto</a>
-          <a href="#plus">Plus</a>
-          <a href="#clip">Clip</a>
-          <a href="#location">Location</a>
-          <a href="#contatti" class="nav-cta">Contatti</a>
-        </nav>
-      </div>
+      <nav class="top-nav">
+        <a href="#viewer">Viewer</a>
+        <a href="#progetto">Progetto</a>
+        <a href="#contatti">Contatti</a>
+      </nav>
     </header>
 
-    <main id="top">
-      <section class="hero">
-        <video
-          class="hero-video"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="auto"
-        >
-          <source src="assets/videos/hero.mp4" type="video/mp4" />
-        </video>
+    <main>
+      <section class="hero" id="viewer">
+        <div class="viewer-shell">
+          <div class="viewer-stage" id="viewerStage">
+            <img
+              id="sceneFrame"
+              class="scene-frame"
+              src="assets/frames/A.png"
+              alt="Camera A - CASTELLO"
+              draggable="false"
+            />
 
-        <div class="hero-overlay"></div>
+            <video
+              id="transitionVideo"
+              class="transition-video hidden"
+              muted
+              playsinline
+              preload="auto"
+            ></video>
 
-        <div class="container hero-content">
-          <p class="eyebrow">Operazione immobiliare</p>
-          <h1>CASTELLO</h1>
-          <p class="hero-text">
-            Un progetto residenziale e d’investimento costruito attorno a
-            architettura, territorio e visione. Un’esperienza digitale immersiva
-            per raccontare il valore del luogo.
-          </p>
+            <button
+              class="hotspot hotspot-left"
+              id="hotspotLeft"
+              aria-label="Vai alla camera precedente"
+            ></button>
 
-          <div class="hero-actions">
-            <a href="#progetto" class="btn btn-primary">Scopri il progetto</a>
-            <a href="#clip" class="btn btn-secondary">Guarda le clip</a>
-          </div>
+            <button
+              class="hotspot hotspot-right"
+              id="hotspotRight"
+              aria-label="Vai alla camera successiva"
+            ></button>
 
-          <div class="hero-stats">
-            <div>
-              <strong>01</strong>
-              <span>Visione premium</span>
+            <div class="viewer-ui">
+              <div class="viewer-badge">CASTELLO / immersive view</div>
+
+              <div class="viewer-hint">
+                <span>← camera precedente</span>
+                <span>camera successiva →</span>
+              </div>
             </div>
-            <div>
-              <strong>02</strong>
-              <span>Video storytelling</span>
-            </div>
-            <div>
-              <strong>03</strong>
-              <span>Esperienza touch</span>
-            </div>
+
+            <div class="viewer-status" id="viewerStatus">Camera A</div>
           </div>
         </div>
       </section>
 
-      <section class="section intro" id="progetto">
-        <div class="container intro-grid">
+      <section class="content" id="progetto">
+        <div class="content-grid">
           <div>
-            <p class="eyebrow">Presentazione</p>
-            <h2>Un’identità forte, elegante e contemporanea</h2>
+            <p class="eyebrow">Operazione immobiliare</p>
+            <h1>CASTELLO</h1>
           </div>
 
           <div>
             <p>
-              CASTELLO nasce per comunicare qualità progettuale, posizionamento
-              e desiderabilità. Questa base è pensata per GitHub Pages:
-              semplice, veloce da pubblicare, facile da aggiornare.
+              Viewer finto 3D con frame statici PNG e video di transizione tra
+              camere.
             </p>
             <p>
-              Puoi sostituire testi, video, metriche, immagini e call to action
-              senza framework: solo HTML, CSS e JavaScript.
+              La navigazione è circolare: A-B-C-D-A, con passaggi anche A-D e
+              D-A.
             </p>
           </div>
         </div>
       </section>
 
-      <section class="section features" id="plus">
-        <div class="container">
-          <div class="section-heading">
-            <p class="eyebrow">Plus del progetto</p>
-            <h2>I pilastri di CASTELLO</h2>
-          </div>
-
-          <div class="cards-grid">
-            <article class="info-card reveal">
-              <span class="card-number">01</span>
-              <h3>Architettura identitaria</h3>
-              <p>
-                Un linguaggio visivo distintivo che valorizza il progetto e il
-                contesto.
-              </p>
-            </article>
-
-            <article class="info-card reveal">
-              <span class="card-number">02</span>
-              <h3>Esperienza immersiva</h3>
-              <p>
-                Hero video, transizioni eleganti e clip interattive per una
-                narrazione ad alto impatto.
-              </p>
-            </article>
-
-            <article class="info-card reveal">
-              <span class="card-number">03</span>
-              <h3>Comunicazione premium</h3>
-              <p>
-                Layout editoriale, gerarchie chiare e tono sofisticato orientato
-                a investitori e acquirenti.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section showcase" id="clip">
-        <div class="container">
-          <div class="section-heading section-heading-inline">
-            <div>
-              <p class="eyebrow">Clip interattive</p>
-              <h2>Swipe per passare da un video all’altro</h2>
-            </div>
-
-            <div class="clip-controls">
-              <button class="clip-btn" id="prevClip" aria-label="Clip precedente">
-                ←
-              </button>
-              <button class="clip-btn" id="nextClip" aria-label="Clip successiva">
-                →
-              </button>
-            </div>
-          </div>
-
-          <div class="clips-slider" id="clipsSlider">
-            <div class="clips-track" id="clipsTrack">
-              <article class="clip-slide active">
-                <div class="clip-media">
-                  <video controls playsinline preload="metadata" poster="">
-                    <source src="assets/videos/clip-1.mp4" type="video/mp4" />
-                  </video>
-                </div>
-                <div class="clip-copy">
-                  <p class="clip-kicker">Clip 01</p>
-                  <h3>L’arrivo</h3>
-                  <p>
-                    Inquadrature del contesto, accessi, paesaggio e primo impatto.
-                  </p>
-                </div>
-              </article>
-
-              <article class="clip-slide">
-                <div class="clip-media">
-                  <video controls playsinline preload="metadata" poster="">
-                    <source src="assets/videos/clip-2.mp4" type="video/mp4" />
-                  </video>
-                </div>
-                <div class="clip-copy">
-                  <p class="clip-kicker">Clip 02</p>
-                  <h3>Architettura</h3>
-                  <p>
-                    Materiali, volumetrie, dettagli progettuali e atmosfera.
-                  </p>
-                </div>
-              </article>
-
-              <article class="clip-slide">
-                <div class="clip-media">
-                  <video controls playsinline preload="metadata" poster="">
-                    <source src="assets/videos/clip-3.mp4" type="video/mp4" />
-                  </video>
-                </div>
-                <div class="clip-copy">
-                  <p class="clip-kicker">Clip 03</p>
-                  <h3>Investimento</h3>
-                  <p>
-                    Una sintesi visiva dei punti di forza commerciali e del posizionamento.
-                  </p>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="slider-dots" id="sliderDots">
-            <button class="dot active" data-slide="0" aria-label="Vai alla clip 1"></button>
-            <button class="dot" data-slide="1" aria-label="Vai alla clip 2"></button>
-            <button class="dot" data-slide="2" aria-label="Vai alla clip 3"></button>
-          </div>
-        </div>
-      </section>
-
-      <section class="section location" id="location">
-        <div class="container location-grid">
-          <div class="location-copy">
-            <p class="eyebrow">Location</p>
-            <h2>Un posizionamento che valorizza il progetto</h2>
-            <p>
-              Inserisci qui una descrizione breve della zona, della sua
-              accessibilità, del contesto urbano e del potenziale immobiliare.
-            </p>
-          </div>
-
-          <div class="location-panel reveal">
-            <div class="metric">
-              <strong>+ Valore</strong>
-              <span>Contesto premium e riconoscibile</span>
-            </div>
-            <div class="metric">
-              <strong>+ Interesse</strong>
-              <span>Comunicazione pensata per lead qualificati</span>
-            </div>
-            <div class="metric">
-              <strong>+ Conversione</strong>
-              <span>Pagine chiare, veloci e mobile-first</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section cta" id="contatti">
-        <div class="container cta-box reveal">
-          <p class="eyebrow">Contatti</p>
-          <h2>Richiedi la presentazione completa di CASTELLO</h2>
-          <p>
-            Inserisci qui email, numero, WhatsApp, brochure PDF o link a form.
-          </p>
-          <a href="mailto:info@castello.it" class="btn btn-primary">
-            Scrivi ora
-          </a>
-        </div>
+      <section class="content content-small" id="contatti">
+        <p class="eyebrow">Contatti</p>
+        <h2>Materiali e presentazione</h2>
+        <p>
+          Qui puoi inserire brochure, contatto commerciale, PDF o call to
+          action.
+        </p>
       </section>
     </main>
 
