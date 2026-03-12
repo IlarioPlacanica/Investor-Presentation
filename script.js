@@ -1,131 +1,142 @@
-const header = document.getElementById("siteHeader");
-const menuToggle = document.getElementById("menuToggle");
-const siteNav = document.getElementById("siteNav");
+const frameEl = document.getElementById("sceneFrame");
+const videoEl = document.getElementById("transitionVideo");
+const hotspotLeft = document.getElementById("hotspotLeft");
+const hotspotRight = document.getElementById("hotspotRight");
+const statusEl = document.getElementById("viewerStatus");
+const viewerStage = document.getElementById("viewerStage");
 
-const clipsTrack = document.getElementById("clipsTrack");
-const slides = Array.from(document.querySelectorAll(".clip-slide"));
-const dots = Array.from(document.querySelectorAll(".dot"));
-const prevBtn = document.getElementById("prevClip");
-const nextBtn = document.getElementById("nextClip");
+const scenes = ["A", "B", "C", "D"];
 
-let currentSlide = 0;
+let currentIndex = 0;
+let isTransitioning = false;
 let startX = 0;
 let endX = 0;
 
-function handleHeader() {
-  if (window.scrollY > 20) {
-    header.classList.add("scrolled");
-  } else {
-    header.classList.remove("scrolled");
+function getCurrentScene() {
+  return scenes[currentIndex];
+}
+
+function getPrevIndex(index) {
+  return (index - 1 + scenes.length) % scenes.length;
+}
+
+function getNextIndex(index) {
+  return (index + 1) % scenes.length;
+}
+
+function getFramePath(scene) {
+  return `assets/frames/${scene}.png`;
+}
+
+function getVideoPath(fromScene, toScene) {
+  return `assets/videos/${fromScene}-${toScene}.mp4`;
+}
+
+function updateStaticScene() {
+  const scene = getCurrentScene();
+  frameEl.src = getFramePath(scene);
+  frameEl.alt = `Camera ${scene} - CASTELLO`;
+  statusEl.textContent = `Camera ${scene}`;
+}
+
+function resetVideoLayer() {
+  videoEl.pause();
+  videoEl.removeAttribute("src");
+  videoEl.load();
+  videoEl.classList.add("hidden");
+  videoEl.onended = null;
+  videoEl.onerror = null;
+}
+
+function endTransition(newIndex) {
+  currentIndex = newIndex;
+  updateStaticScene();
+  resetVideoLayer();
+  isTransitioning = false;
+}
+
+function playTransition(targetIndex) {
+  if (isTransitioning) return;
+  if (targetIndex === currentIndex) return;
+
+  const fromScene = scenes[currentIndex];
+  const toScene = scenes[targetIndex];
+  const videoPath = getVideoPath(fromScene, toScene);
+
+  isTransitioning = true;
+
+  videoEl.src = videoPath;
+  videoEl.classList.remove("hidden");
+  videoEl.currentTime = 0;
+
+  videoEl.onended = () => {
+    endTransition(targetIndex);
+  };
+
+  videoEl.onerror = () => {
+    console.error(`Video non trovato o non leggibile: ${videoPath}`);
+    endTransition(targetIndex);
+  };
+
+  const playPromise = videoEl.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch((error) => {
+      console.error("Errore playback video:", error);
+      endTransition(targetIndex);
+    });
   }
 }
 
-handleHeader();
-window.addEventListener("scroll", handleHeader);
-
-menuToggle?.addEventListener("click", () => {
-  siteNav.classList.toggle("is-open");
-});
-
-document.querySelectorAll('.site-nav a').forEach((link) => {
-  link.addEventListener("click", () => {
-    siteNav.classList.remove("is-open");
-  });
-});
-
-function pauseAllVideos() {
-  document.querySelectorAll(".clip-slide video").forEach((video, index) => {
-    if (index !== currentSlide) {
-      video.pause();
-    }
-  });
+function goNext() {
+  const targetIndex = getNextIndex(currentIndex);
+  playTransition(targetIndex);
 }
 
-function updateSlider() {
-  clipsTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-  slides.forEach((slide, index) => {
-    slide.classList.toggle("active", index === currentSlide);
-  });
-
-  dots.forEach((dot, index) => {
-    dot.classList.toggle("active", index === currentSlide);
-  });
-
-  pauseAllVideos();
+function goPrev() {
+  const targetIndex = getPrevIndex(currentIndex);
+  playTransition(targetIndex);
 }
 
-function goToSlide(index) {
-  if (index < 0) {
-    currentSlide = slides.length - 1;
-  } else if (index >= slides.length) {
-    currentSlide = 0;
-  } else {
-    currentSlide = index;
-  }
+hotspotLeft.addEventListener("click", goPrev);
+hotspotRight.addEventListener("click", goNext);
 
-  updateSlider();
-}
-
-prevBtn?.addEventListener("click", () => {
-  goToSlide(currentSlide - 1);
-});
-
-nextBtn?.addEventListener("click", () => {
-  goToSlide(currentSlide + 1);
-});
-
-dots.forEach((dot) => {
-  dot.addEventListener("click", () => {
-    goToSlide(Number(dot.dataset.slide));
-  });
-});
-
-clipsTrack?.addEventListener("touchstart", (event) => {
+viewerStage.addEventListener("touchstart", (event) => {
   startX = event.changedTouches[0].clientX;
 });
 
-clipsTrack?.addEventListener("touchend", (event) => {
+viewerStage.addEventListener("touchend", (event) => {
   endX = event.changedTouches[0].clientX;
   handleSwipe();
 });
 
-clipsTrack?.addEventListener("mousedown", (event) => {
+viewerStage.addEventListener("mousedown", (event) => {
   startX = event.clientX;
 });
 
-clipsTrack?.addEventListener("mouseup", (event) => {
+viewerStage.addEventListener("mouseup", (event) => {
   endX = event.clientX;
   handleSwipe();
 });
 
 function handleSwipe() {
-  const diff = startX - endX;
+  if (isTransitioning) return;
 
-  if (Math.abs(diff) < 50) return;
+  const diff = endX - startX;
+  const threshold = 50;
 
+  if (Math.abs(diff) < threshold) return;
+
+  // swipe da sinistra verso destra
   if (diff > 0) {
-    goToSlide(currentSlide + 1);
-  } else {
-    goToSlide(currentSlide - 1);
+    goNext();
+  }
+
+  // swipe da destra verso sinistra
+  if (diff < 0) {
+    goPrev();
   }
 }
 
-const revealElements = document.querySelectorAll(".reveal");
-
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-      }
-    });
-  },
-  {
-    threshold: 0.15,
-  }
-);
-
-revealElements.forEach((element) => revealObserver.observe(element));
-
-updateSlider();
+updateStaticScene();
+resetVideoLayer();
