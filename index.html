@@ -7,6 +7,14 @@
     <meta name="description"
           content="CASTELLO - viewer immersivo con hero video e transizioni tra camere." />
     <link rel="stylesheet" href="style.css" />
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+          }
+        }
+    </script>
 </head>
 <body>
     <header class="site-header">
@@ -91,6 +99,17 @@
             </div>
         </section>
 
+        <section class="glb-viewer-section" id="modello-3d">
+            <div class="three-viewer"
+                 data-model="/assets/Model/CastelloGlb.glb">
+                <canvas id="three-canvas"></canvas>
+
+                <div class="three-overlay">
+                    <div class="three-badge">CASTELLO / 3D model</div>
+                </div>
+            </div>
+        </section>
+
         <section class="content" id="progetto">
             <div class="content-grid">
                 <div>
@@ -122,5 +141,6 @@
     </main>
 
     <script src="script.js"></script>
+    <script type="module" src="three-viewer.js"></script>
 </body>
 </html>
