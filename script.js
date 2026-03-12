@@ -44,8 +44,11 @@ function resetVideoLayer() {
   videoEl.removeAttribute("src");
   videoEl.load();
   videoEl.classList.add("hidden");
+  videoEl.classList.remove("is-ready");
   videoEl.onended = null;
   videoEl.onerror = null;
+  videoEl.onloadeddata = null;
+  videoEl.oncanplay = null;
 }
 
 function endTransition(newIndex) {
@@ -65,9 +68,32 @@ function playTransition(targetIndex) {
 
   isTransitioning = true;
 
+  // tiene visibile il frame statico sotto finché il video non è davvero pronto
+  videoEl.classList.add("hidden");
+  videoEl.classList.remove("is-ready");
   videoEl.src = videoPath;
-  videoEl.classList.remove("hidden");
   videoEl.currentTime = 0;
+  videoEl.load();
+
+  const revealAndPlay = () => {
+    videoEl.classList.remove("hidden");
+
+    requestAnimationFrame(() => {
+      videoEl.classList.add("is-ready");
+
+      const playPromise = videoEl.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error("Errore playback video:", error);
+          endTransition(targetIndex);
+        });
+      }
+    });
+  };
+
+  // quando il primo frame è disponibile, mostriamo il video
+  videoEl.onloadeddata = revealAndPlay;
 
   videoEl.onended = () => {
     endTransition(targetIndex);
@@ -77,15 +103,6 @@ function playTransition(targetIndex) {
     console.error(`Video non trovato o non leggibile: ${videoPath}`);
     endTransition(targetIndex);
   };
-
-  const playPromise = videoEl.play();
-
-  if (playPromise !== undefined) {
-    playPromise.catch((error) => {
-      console.error("Errore playback video:", error);
-      endTransition(targetIndex);
-    });
-  }
 }
 
 function goNext() {
@@ -127,14 +144,15 @@ function handleSwipe() {
 
   if (Math.abs(diff) < threshold) return;
 
+  // FIX: swipe invertito rispetto a prima
   // swipe da sinistra verso destra
   if (diff > 0) {
-    goNext();
+    goPrev();
   }
 
   // swipe da destra verso sinistra
   if (diff < 0) {
-    goPrev();
+    goNext();
   }
 }
 
