@@ -5,9 +5,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const wrapper = document.querySelector('.three-viewer');
 const canvas = document.getElementById('three-canvas');
 
-if (!wrapper || !canvas) {
-  console.log('Three viewer non presente in questa pagina');
-} else {
+if (wrapper && canvas) {
   initThreeViewer(wrapper, canvas);
 }
 
@@ -29,26 +27,26 @@ function initThreeViewer(wrapper, canvas) {
   });
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const initialRect = wrapper.getBoundingClientRect();
-renderer.setSize(
-  Math.round(initialRect.width),
-  Math.round(initialRect.height),
-  false
-);
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.3;
+  renderer.toneMappingExposure = 1.2;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf3f3f3);
 
+  const initialRect = wrapper.getBoundingClientRect();
+  const initialWidth = Math.max(1, Math.round(initialRect.width));
+  const initialHeight = Math.max(1, Math.round(initialRect.height));
+
+  renderer.setSize(initialWidth, initialHeight, false);
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+
   const camera = new THREE.PerspectiveCamera(
     38,
-    initialRect.width / initialRect.height
+    initialWidth / initialHeight,
     0.01,
     1000
   );
@@ -78,7 +76,7 @@ renderer.setSize(
   hemiLight.position.set(0, 10, 0);
   scene.add(hemiLight);
 
-  const sunLight = new THREE.DirectionalLight(0xffffff, 3.8);
+  const sunLight = new THREE.DirectionalLight(0xffffff, 3.4);
   sunLight.position.set(5.5, 8.0, 4.5);
   sunLight.castShadow = true;
 
@@ -86,15 +84,6 @@ renderer.setSize(
   sunLight.shadow.mapSize.set(shadowMapSize, shadowMapSize);
   sunLight.shadow.bias = -0.00005;
   sunLight.shadow.normalBias = 0.03;
-
-  sunLight.shadow.camera.left = -10;
-  sunLight.shadow.camera.right = 10;
-  sunLight.shadow.camera.top = 10;
-  sunLight.shadow.camera.bottom = -10;
-  sunLight.shadow.camera.near = 0.5;
-  sunLight.shadow.camera.far = 35;
-
-  sunLight.target.position.set(0, 0.9, 0);
   scene.add(sunLight);
   scene.add(sunLight.target);
 
@@ -123,6 +112,8 @@ renderer.setSize(
   shadowPlane.receiveShadow = true;
   scene.add(shadowPlane);
 
+  showViewerMessage(wrapper, 'Caricamento modello 3D...');
+
   const loader = new GLTFLoader();
 
   loader.load(
@@ -136,11 +127,10 @@ renderer.setSize(
         if (obj.name === 'Glass') {
           obj.castShadow = false;
           obj.receiveShadow = false;
-          return;
+        } else {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
         }
-
-        obj.castShadow = true;
-        obj.receiveShadow = true;
 
         const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
 
@@ -160,7 +150,7 @@ renderer.setSize(
       });
 
       scene.add(modelRoot);
-      centerAndFitModel(modelRoot, camera, controls, sunLight);
+      centerAndFitModel(modelRoot, camera, controls, sunLight, floor, shadowPlane, isMobile);
       resizeViewer();
       hideViewerMessage(wrapper);
       animate();
@@ -172,7 +162,7 @@ renderer.setSize(
     }
   );
 
-  function centerAndFitModel(model, cameraRef, controlsRef, mainLight) {
+  function centerAndFitModel(model, cameraRef, controlsRef, mainLight, floorRef, shadowRef, mobile) {
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
 
@@ -189,27 +179,27 @@ renderer.setSize(
 
     const fov = THREE.MathUtils.degToRad(cameraRef.fov);
     let distance = maxDim / (2 * Math.tan(fov / 2));
-    distance *= isMobile ? 1.3 : 1.15;
+    distance *= mobile ? 1.35 : 1.15;
 
     cameraRef.near = Math.max(distance / 100, 0.01);
     cameraRef.far = Math.max(distance * 30, 100);
     cameraRef.updateProjectionMatrix();
 
     cameraRef.position.set(
-      distance * 0.10,
-      distance * 1.85,
+      distance * 0.1,
+      distance * 1.65,
       distance * 0.95
     );
     cameraRef.lookAt(controlsRef.target);
 
-    controlsRef.minDistance = Math.max(maxDim * 0.35, 0.8);
+    controlsRef.minDistance = Math.max(maxDim * 0.4, 0.8);
     controlsRef.maxDistance = Math.max(maxDim * 6, 30);
     controlsRef.update();
 
     mainLight.target.position.copy(controlsRef.target);
     mainLight.position.set(
       maxDim * 0.45,
-      maxDim * 1.25,
+      maxDim * 1.2,
       maxDim * 0.75
     );
 
@@ -222,28 +212,26 @@ renderer.setSize(
     mainLight.shadow.camera.far = Math.max(maxDim * 5, 25);
     mainLight.shadow.camera.updateProjectionMatrix();
 
-    shadowPlane.position.y = 0;
-    floor.position.y = -0.002;
+    shadowRef.position.y = 0;
+    floorRef.position.y = -0.002;
   }
 
-function resizeViewer() {
-  const rect = wrapper.getBoundingClientRect();
-  const width = Math.round(rect.width);
-  const height = Math.round(rect.height);
+  function resizeViewer() {
+    const rect = wrapper.getBoundingClientRect();
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
 
-  if (!width || !height) return;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(width, height, false);
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(width, height, false);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
 
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
 
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-
-  renderer.render(scene, camera);
-}
+    renderer.render(scene, camera);
+  }
 
   let animationFrameId = null;
 

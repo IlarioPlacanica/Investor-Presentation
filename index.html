@@ -7,6 +7,7 @@
     <meta name="description"
           content="CASTELLO - viewer immersivo con hero video e transizioni tra camere." />
     <link rel="stylesheet" href="style.css" />
+
     <script type="importmap">
         {
           "imports": {
@@ -23,13 +24,13 @@
         <nav class="top-nav">
             <a href="#intro">Intro</a>
             <a href="#viewer">Viewer</a>
+            <a href="#modello-3d">3D</a>
             <a href="#progetto">Progetto</a>
             <a href="#contatti">Contatti</a>
         </nav>
     </header>
 
     <main>
-        <!-- HERO VIDEO FULL SCREEN -->
         <section class="intro-section" id="intro">
             <video id="introVideo"
                    class="intro-video"
@@ -57,7 +58,6 @@
             </div>
         </section>
 
-        <!-- VIEWER FULL SCREEN -->
         <section class="viewer-fullscreen" id="viewer">
             <div class="viewer-stage" id="viewerStage">
                 <img id="sceneFrameA"
@@ -100,8 +100,7 @@
         </section>
 
         <section class="glb-viewer-section" id="modello-3d">
-            <div class="three-viewer"
-                 data-model="/assets/Model/CastelloGlb.glb">
+            <div class="three-viewer" data-model="assets/Model/CastelloGlb.glb">
                 <canvas id="three-canvas"></canvas>
 
                 <div class="three-overlay">
@@ -134,8 +133,7 @@
             <p class="eyebrow">Contatti</p>
             <h2>Materiali e presentazione</h2>
             <p>
-                Qui puoi inserire brochure, contatto commerciale, PDF o call to
-                action.
+                Qui puoi inserire brochure, contatto commerciale, PDF o call to action.
             </p>
         </section>
     </main>

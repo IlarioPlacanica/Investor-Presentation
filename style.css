@@ -164,7 +164,7 @@ p {
     font-weight: 700;
 }
 
-/* VIEWER FULLSCREEN */
+/* VIEWER FAKE FULLSCREEN */
 
 .viewer-fullscreen {
     position: relative;
@@ -278,6 +278,67 @@ p {
     font-size: 0.92rem;
 }
 
+/* GLB VIEWER */
+
+.glb-viewer-section {
+    position: relative;
+    padding: 0;
+    background: #f3f3f3;
+}
+
+.three-viewer {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    background: #f3f3f3;
+}
+
+#three-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.three-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: calc(var(--header-h) + 18px) 18px 18px;
+}
+
+.three-badge {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(8, 10, 13, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.three-viewer-message {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    background: #f3f3f3;
+    z-index: 5;
+}
+
 /* CONTENT */
 
 .content {
@@ -338,74 +399,7 @@ p {
         font-size: 0.74rem;
     }
 
-    .glb-viewer-section {
-        position: relative;
-        padding: 0;
-        background: #f3f3f3;
-    }
-
     .three-viewer {
-        position: relative;
-        width: 100%;
-        height: 560px;
-        min-height: 560px;
-        max-height: 560px;
-        overflow: hidden;
-        background: #f3f3f3;
-        flex: none;
-        contain: layout paint size;
-    }
-
-    #three-canvas {
-        position: absolute;
-        inset: 0;
-        display: block;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    .three-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 4;
-        pointer-events: none;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding: calc(var(--header-h) + 18px) 18px 18px;
-    }
-
-    .three-badge {
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(8, 10, 13, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #fff;
-        font-size: 0.78rem;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-    }
-
-    .three-viewer-message {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 24px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-        background: #f3f3f3;
-        z-index: 5;
-    }
-
-    @media (max-width: 680px) {
-        .three-viewer {
-            height: 360px;
-            min-height: 360px;
-            max-height: 360px;
-        }
+        height: 320px;
     }
 }
