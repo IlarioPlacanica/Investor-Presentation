@@ -12,6 +12,10 @@ let isTransitioning = false;
 let startX = 0;
 let endX = 0;
 
+// cache asset precaricati
+const preloadedVideos = new Map();
+const preloadedFrames = new Map();
+
 function getCurrentScene() {
   return scenes[currentIndex];
 }
@@ -32,30 +36,98 @@ function getVideoPath(fromScene, toScene) {
   return `assets/videos/${fromScene}-${toScene}.mp4`;
 }
 
-function updateStaticScene() {
-  const scene = getCurrentScene();
-  frameEl.src = getFramePath(scene);
-  frameEl.alt = `Camera ${scene} - CASTELLO`;
+function setStatus(scene) {
   statusEl.textContent = `Camera ${scene}`;
+}
+
+function preloadFrame(scene) {
+  const path = getFramePath(scene);
+
+  if (preloadedFrames.has(scene)) {
+    return preloadedFrames.get(scene);
+  }
+
+  const img = new Image();
+  img.src = path;
+  preloadedFrames.set(scene, img);
+
+  return img;
+}
+
+function preloadVideo(path) {
+  if (preloadedVideos.has(path)) return preloadedVideos.get(path);
+
+  const v = document.createElement("video");
+  v.preload = "auto";
+  v.muted = true;
+  v.playsInline = true;
+  v.src = path;
+  v.load();
+
+  preloadedVideos.set(path, v);
+  return v;
+}
+
+function applyStaticScene(scene) {
+  const cachedImg = preloadFrame(scene);
+
+  frameEl.src = cachedImg.src;
+  frameEl.alt = `Camera ${scene} - CASTELLO`;
+  setStatus(scene);
 }
 
 function resetVideoLayer() {
   videoEl.pause();
   videoEl.removeAttribute("src");
+  videoEl.removeAttribute("poster");
   videoEl.load();
   videoEl.classList.add("hidden");
   videoEl.classList.remove("is-ready");
   videoEl.onended = null;
   videoEl.onerror = null;
   videoEl.onloadeddata = null;
-  videoEl.oncanplay = null;
+}
+
+function preloadAdjacentAssets() {
+  const currentScene = scenes[currentIndex];
+  const prevScene = scenes[getPrevIndex(currentIndex)];
+  const nextScene = scenes[getNextIndex(currentIndex)];
+
+  // frame corrente + vicini
+  preloadFrame(currentScene);
+  preloadFrame(prevScene);
+  preloadFrame(nextScene);
+
+  // video vicini
+  preloadVideo(getVideoPath(currentScene, prevScene));
+  preloadVideo(getVideoPath(currentScene, nextScene));
 }
 
 function endTransition(newIndex) {
-  currentIndex = newIndex;
-  updateStaticScene();
-  resetVideoLayer();
-  isTransitioning = false;
+  const targetScene = scenes[newIndex];
+  const targetImg = preloadFrame(targetScene);
+
+  const finalize = () => {
+    currentIndex = newIndex;
+
+    // metto prima il frame corretto sotto al video
+    frameEl.src = targetImg.src;
+    frameEl.alt = `Camera ${targetScene} - CASTELLO`;
+    setStatus(targetScene);
+
+    // solo adesso tolgo il video
+    resetVideoLayer();
+
+    preloadAdjacentAssets();
+    isTransitioning = false;
+  };
+
+  if (targetImg.complete && targetImg.naturalWidth > 0) {
+    finalize();
+  } else {
+    targetImg.onload = finalize;
+    targetImg.onerror = finalize;
+  }
 }
 
 function playTransition(targetIndex) {
@@ -68,9 +140,12 @@ function playTransition(targetIndex) {
 
   isTransitioning = true;
 
-  // tiene visibile il frame statico sotto finché il video non è davvero pronto
+  // tengo visibile il frame attuale finché il video non è pronto
   videoEl.classList.add("hidden");
   videoEl.classList.remove("is-ready");
+
+  // poster = frame corrente, per evitare flash neri
+  videoEl.poster = frameEl.src;
   videoEl.src = videoPath;
   videoEl.currentTime = 0;
   videoEl.load();
@@ -92,7 +167,6 @@ function playTransition(targetIndex) {
     });
   };
 
-  // quando il primo frame è disponibile, mostriamo il video
   videoEl.onloadeddata = revealAndPlay;
 
   videoEl.onended = () => {
@@ -106,13 +180,30 @@ function playTransition(targetIndex) {
 }
 
 function goNext() {
-  const targetIndex = getNextIndex(currentIndex);
-  playTransition(targetIndex);
+  playTransition(getNextIndex(currentIndex));
 }
 
 function goPrev() {
-  const targetIndex = getPrevIndex(currentIndex);
-  playTransition(targetIndex);
+  playTransition(getPrevIndex(currentIndex));
+}
+
+function handleSwipe() {
+  if (isTransitioning) return;
+
+  const diff = endX - startX;
+  const threshold = 50;
+
+  if (Math.abs(diff) < threshold) return;
+
+  // swipe sinistra -> destra = camera precedente
+  if (diff > 0) {
+    goPrev();
+  }
+
+  // swipe destra -> sinistra = camera successiva
+  if (diff < 0) {
+    goNext();
+  }
 }
 
 hotspotLeft.addEventListener("click", goPrev);
@@ -136,25 +227,7 @@ viewerStage.addEventListener("mouseup", (event) => {
   handleSwipe();
 });
 
-function handleSwipe() {
-  if (isTransitioning) return;
-
-  const diff = endX - startX;
-  const threshold = 50;
-
-  if (Math.abs(diff) < threshold) return;
-
-  // FIX: swipe invertito rispetto a prima
-  // swipe da sinistra verso destra
-  if (diff > 0) {
-    goPrev();
-  }
-
-  // swipe da destra verso sinistra
-  if (diff < 0) {
-    goNext();
-  }
-}
-
-updateStaticScene();
+// init
+applyStaticScene(getCurrentScene());
 resetVideoLayer();
+preloadAdjacentAssets();
