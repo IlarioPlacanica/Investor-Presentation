@@ -193,7 +193,14 @@ p {
 
 .scene-frame {
     z-index: 1;
+    opacity: 0;
+    transition: opacity 0.01s linear;
+    pointer-events: none;
 }
+
+    .scene-frame.is-active {
+        opacity: 1;
+    }
 
 .transition-video {
     z-index: 3;

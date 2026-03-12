@@ -1,4 +1,5 @@
-const frameEl = document.getElementById("sceneFrame");
+const frameAEl = document.getElementById("sceneFrameA");
+const frameBEl = document.getElementById("sceneFrameB");
 const videoEl = document.getElementById("transitionVideo");
 const hotspotLeft = document.getElementById("hotspotLeft");
 const hotspotRight = document.getElementById("hotspotRight");
@@ -12,6 +13,9 @@ let currentIndex = 0;
 let isTransitioning = false;
 let startX = 0;
 let endX = 0;
+
+let activeFrameEl = frameAEl;
+let inactiveFrameEl = frameBEl;
 
 const preloadedVideos = new Map();
 const preloadedFrames = new Map();
@@ -41,17 +45,26 @@ function setStatus(scene) {
 }
 
 function preloadFrame(scene) {
-  const path = getFramePath(scene);
-
   if (preloadedFrames.has(scene)) {
     return preloadedFrames.get(scene);
   }
 
   const img = new Image();
-  img.src = path;
-  preloadedFrames.set(scene, img);
+  img.src = getFramePath(scene);
 
-  return img;
+  const ready = new Promise((resolve) => {
+    if (img.complete && img.naturalWidth > 0) {
+      resolve(img);
+      return;
+    }
+
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(img);
+  });
+
+  const entry = { img, ready };
+  preloadedFrames.set(scene, entry);
+  return entry;
 }
 
 function preloadVideo(path) {
@@ -70,10 +83,40 @@ function preloadVideo(path) {
   return v;
 }
 
-function applyStaticScene(scene) {
-  const cachedImg = preloadFrame(scene);
-  frameEl.src = cachedImg.src;
-  frameEl.alt = `Camera ${scene} - CASTELLO`;
+async function prepareInactiveFrame(scene) {
+  const entry = preloadFrame(scene);
+  await entry.ready;
+
+  inactiveFrameEl.src = entry.img.src;
+  inactiveFrameEl.alt = `Camera ${scene} - CASTELLO`;
+
+  // forza decode/presentazione del frame target anche su mobile
+  if (inactiveFrameEl.decode) {
+    try {
+      await inactiveFrameEl.decode();
+    } catch (_) {}
+  }
+}
+
+function swapFrames() {
+  activeFrameEl.classList.remove("is-active");
+  inactiveFrameEl.classList.add("is-active");
+
+  const temp = activeFrameEl;
+  activeFrameEl = inactiveFrameEl;
+  inactiveFrameEl = temp;
+}
+
+function applyInitialScene(scene) {
+  const path = getFramePath(scene);
+  frameAEl.src = path;
+  frameAEl.alt = `Camera ${scene} - CASTELLO`;
+  frameAEl.classList.add("is-active");
+
+  frameBEl.src = path;
+  frameBEl.alt = "";
+  frameBEl.classList.remove("is-active");
+
   setStatus(scene);
 }
 
@@ -102,30 +145,30 @@ function preloadAdjacentAssets() {
   preloadVideo(getVideoPath(currentScene, nextScene));
 }
 
-function endTransition(newIndex) {
+async function endTransition(newIndex) {
   const targetScene = scenes[newIndex];
-  const targetImg = preloadFrame(targetScene);
 
-  const finalize = () => {
-    currentIndex = newIndex;
-    frameEl.src = targetImg.src;
-    frameEl.alt = `Camera ${targetScene} - CASTELLO`;
-    setStatus(targetScene);
+  // IMPORTANTISSIMO:
+  // preparo il frame target nel layer inattivo PRIMA di togliere il video
+  await prepareInactiveFrame(targetScene);
 
-    resetVideoLayer();
-    preloadAdjacentAssets();
-    isTransitioning = false;
-  };
+  currentIndex = newIndex;
+  setStatus(targetScene);
 
-  if (targetImg.complete && targetImg.naturalWidth > 0) {
-    finalize();
-  } else {
-    targetImg.onload = finalize;
-    targetImg.onerror = finalize;
-  }
+  // ora sotto al video c'è già il frame corretto
+  swapFrames();
+
+  // al frame successivo tolgo il video, così il browser ha tempo di paintare
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      resetVideoLayer();
+      preloadAdjacentAssets();
+      isTransitioning = false;
+    });
+  });
 }
 
-function playTransition(targetIndex) {
+async function playTransition(targetIndex) {
   if (isTransitioning) return;
   if (targetIndex === currentIndex) return;
 
@@ -135,9 +178,12 @@ function playTransition(targetIndex) {
 
   isTransitioning = true;
 
+  // preparo già sotto il frame target PRIMA che il video finisca
+  await prepareInactiveFrame(toScene);
+
   videoEl.classList.add("hidden");
   videoEl.classList.remove("is-ready");
-  videoEl.poster = frameEl.src;
+  videoEl.poster = activeFrameEl.src;
   videoEl.src = videoPath;
   videoEl.currentTime = 0;
   videoEl.load();
@@ -216,7 +262,7 @@ viewerStage.addEventListener("mouseup", (event) => {
   handleSwipe();
 });
 
-/* HERO VIDEO LOOP FIX */
+/* hero video */
 if (introVideo) {
   introVideo.addEventListener("ended", () => {
     introVideo.currentTime = 0;
@@ -236,6 +282,7 @@ if (introVideo) {
   introVideo.addEventListener("loadeddata", tryPlay, { once: true });
 }
 
-applyStaticScene(getCurrentScene());
+/* init */
+applyInitialScene(getCurrentScene());
 resetVideoLayer();
 preloadAdjacentAssets();
