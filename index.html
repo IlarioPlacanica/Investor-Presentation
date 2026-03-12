@@ -1,102 +1,120 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CASTELLO</title>
-    <meta
-      name="description"
-      content="CASTELLO - viewer immersivo con transizioni video tra camere."
-    />
+    <meta name="description"
+          content="CASTELLO - viewer immersivo con hero video e transizioni tra camere." />
     <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+</head>
+<body>
     <header class="site-header">
-      <div class="logo">CASTELLO</div>
+        <div class="logo">CASTELLO</div>
 
-      <nav class="top-nav">
-        <a href="#viewer">Viewer</a>
-        <a href="#progetto">Progetto</a>
-        <a href="#contatti">Contatti</a>
-      </nav>
+        <nav class="top-nav">
+            <a href="#intro">Intro</a>
+            <a href="#viewer">Viewer</a>
+            <a href="#progetto">Progetto</a>
+            <a href="#contatti">Contatti</a>
+        </nav>
     </header>
 
     <main>
-      <section class="hero" id="viewer">
-        <div class="viewer-shell">
-          <div class="viewer-stage" id="viewerStage">
-            <img
-              id="sceneFrame"
-              class="scene-frame"
-              src="assets/frames/A.png"
-              alt="Camera A - CASTELLO"
-              draggable="false"
-            />
+        <!-- HERO VIDEO FULL SCREEN -->
+        <section class="intro-section" id="intro">
+            <video id="introVideo"
+                   class="intro-video"
+                   autoplay
+                   muted
+                   loop
+                   playsinline
+                   preload="auto"
+                   poster="assets/frames/intro-poster.png">
+                <source src="assets/videos/intro-loop.mp4" type="video/mp4" />
+            </video>
 
-            <video
-              id="transitionVideo"
-              class="transition-video hidden"
-              muted
-              playsinline
-              preload="auto"
-            ></video>
+            <div class="intro-overlay"></div>
 
-            <button
-              class="hotspot hotspot-left"
-              id="hotspotLeft"
-              aria-label="Vai alla camera precedente"
-            ></button>
+            <div class="intro-content">
+                <p class="eyebrow">Operazione immobiliare</p>
+                <h1>CASTELLO</h1>
+                <p class="intro-text">
+                    Un racconto immersivo tra architettura, spazio e visione.
+                </p>
 
-            <button
-              class="hotspot hotspot-right"
-              id="hotspotRight"
-              aria-label="Vai alla camera successiva"
-            ></button>
-
-            <div class="viewer-ui">
-              <div class="viewer-badge">CASTELLO / immersive view</div>
-
-              <div class="viewer-hint">
-                <span>← camera precedente</span>
-                <span>camera successiva →</span>
-              </div>
+                <div class="intro-actions">
+                    <a href="#viewer" class="cta-primary">Entra nel viewer</a>
+                </div>
             </div>
+        </section>
 
-            <div class="viewer-status" id="viewerStatus">Camera A</div>
-          </div>
-        </div>
-      </section>
+        <!-- VIEWER FULL SCREEN -->
+        <section class="viewer-fullscreen" id="viewer">
+            <div class="viewer-stage" id="viewerStage">
+                <img id="sceneFrame"
+                     class="scene-frame"
+                     src="assets/frames/A.png"
+                     alt="Camera A - CASTELLO"
+                     draggable="false" />
 
-      <section class="content" id="progetto">
-        <div class="content-grid">
-          <div>
-            <p class="eyebrow">Operazione immobiliare</p>
-            <h1>CASTELLO</h1>
-          </div>
+                <video id="transitionVideo"
+                       class="transition-video hidden"
+                       muted
+                       playsinline
+                       preload="auto"></video>
 
-          <div>
+                <button class="hotspot hotspot-left"
+                        id="hotspotLeft"
+                        aria-label="Vai alla camera precedente"></button>
+
+                <button class="hotspot hotspot-right"
+                        id="hotspotRight"
+                        aria-label="Vai alla camera successiva"></button>
+
+                <div class="viewer-ui">
+                    <div class="viewer-badge">CASTELLO / immersive view</div>
+
+                    <div class="viewer-hint">
+                        <span>← camera precedente</span>
+                        <span>camera successiva →</span>
+                    </div>
+                </div>
+
+                <div class="viewer-status" id="viewerStatus">Camera A</div>
+            </div>
+        </section>
+
+        <section class="content" id="progetto">
+            <div class="content-grid">
+                <div>
+                    <p class="eyebrow">Operazione immobiliare</p>
+                    <h2>Viewer circolare</h2>
+                </div>
+
+                <div>
+                    <p>
+                        Navigazione tra camere con struttura circolare:
+                        A-B-C-D-A e viceversa.
+                    </p>
+                    <p>
+                        I frame statici sono PNG, mentre i passaggi tra camere sono video
+                        dedicati.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content content-small" id="contatti">
+            <p class="eyebrow">Contatti</p>
+            <h2>Materiali e presentazione</h2>
             <p>
-              Viewer finto 3D con frame statici PNG e video di transizione tra
-              camere.
+                Qui puoi inserire brochure, contatto commerciale, PDF o call to
+                action.
             </p>
-            <p>
-              La navigazione è circolare: A-B-C-D-A, con passaggi anche A-D e
-              D-A.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="content content-small" id="contatti">
-        <p class="eyebrow">Contatti</p>
-        <h2>Materiali e presentazione</h2>
-        <p>
-          Qui puoi inserire brochure, contatto commerciale, PDF o call to
-          action.
-        </p>
-      </section>
+        </section>
     </main>
 
     <script src="script.js"></script>
-  </body>
+</body>
 </html>

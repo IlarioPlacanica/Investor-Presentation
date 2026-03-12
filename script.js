@@ -4,6 +4,7 @@ const hotspotLeft = document.getElementById("hotspotLeft");
 const hotspotRight = document.getElementById("hotspotRight");
 const statusEl = document.getElementById("viewerStatus");
 const viewerStage = document.getElementById("viewerStage");
+const introVideo = document.getElementById("introVideo");
 
 const scenes = ["A", "B", "C", "D"];
 
@@ -12,7 +13,6 @@ let isTransitioning = false;
 let startX = 0;
 let endX = 0;
 
-// cache asset precaricati
 const preloadedVideos = new Map();
 const preloadedFrames = new Map();
 
@@ -55,7 +55,9 @@ function preloadFrame(scene) {
 }
 
 function preloadVideo(path) {
-  if (preloadedVideos.has(path)) return preloadedVideos.get(path);
+  if (preloadedVideos.has(path)) {
+    return preloadedVideos.get(path);
+  }
 
   const v = document.createElement("video");
   v.preload = "auto";
@@ -70,7 +72,6 @@ function preloadVideo(path) {
 
 function applyStaticScene(scene) {
   const cachedImg = preloadFrame(scene);
-
   frameEl.src = cachedImg.src;
   frameEl.alt = `Camera ${scene} - CASTELLO`;
   setStatus(scene);
@@ -93,12 +94,10 @@ function preloadAdjacentAssets() {
   const prevScene = scenes[getPrevIndex(currentIndex)];
   const nextScene = scenes[getNextIndex(currentIndex)];
 
-  // frame corrente + vicini
   preloadFrame(currentScene);
   preloadFrame(prevScene);
   preloadFrame(nextScene);
 
-  // video vicini
   preloadVideo(getVideoPath(currentScene, prevScene));
   preloadVideo(getVideoPath(currentScene, nextScene));
 }
@@ -109,15 +108,11 @@ function endTransition(newIndex) {
 
   const finalize = () => {
     currentIndex = newIndex;
-
-    // metto prima il frame corretto sotto al video
     frameEl.src = targetImg.src;
     frameEl.alt = `Camera ${targetScene} - CASTELLO`;
     setStatus(targetScene);
 
-    // solo adesso tolgo il video
     resetVideoLayer();
-
     preloadAdjacentAssets();
     isTransitioning = false;
   };
@@ -140,11 +135,8 @@ function playTransition(targetIndex) {
 
   isTransitioning = true;
 
-  // tengo visibile il frame attuale finché il video non è pronto
   videoEl.classList.add("hidden");
   videoEl.classList.remove("is-ready");
-
-  // poster = frame corrente, per evitare flash neri
   videoEl.poster = frameEl.src;
   videoEl.src = videoPath;
   videoEl.currentTime = 0;
@@ -157,7 +149,6 @@ function playTransition(targetIndex) {
       videoEl.classList.add("is-ready");
 
       const playPromise = videoEl.play();
-
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
           console.error("Errore playback video:", error);
@@ -195,12 +186,10 @@ function handleSwipe() {
 
   if (Math.abs(diff) < threshold) return;
 
-  // swipe sinistra -> destra = camera precedente
   if (diff > 0) {
     goPrev();
   }
 
-  // swipe destra -> sinistra = camera successiva
   if (diff < 0) {
     goNext();
   }
@@ -227,7 +216,26 @@ viewerStage.addEventListener("mouseup", (event) => {
   handleSwipe();
 });
 
-// init
+/* HERO VIDEO LOOP FIX */
+if (introVideo) {
+  introVideo.addEventListener("ended", () => {
+    introVideo.currentTime = 0;
+    const playPromise = introVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+  });
+
+  const tryPlay = () => {
+    const playPromise = introVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+  };
+
+  introVideo.addEventListener("loadeddata", tryPlay, { once: true });
+}
+
 applyStaticScene(getCurrentScene());
 resetVideoLayer();
 preloadAdjacentAssets();
