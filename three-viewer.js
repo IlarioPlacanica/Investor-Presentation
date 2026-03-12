@@ -29,7 +29,14 @@ function initThreeViewer(wrapper, canvas) {
   });
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(wrapper.clientWidth, wrapper.clientHeight, false);
+  const initialRect = wrapper.getBoundingClientRect();
+renderer.setSize(
+  Math.round(initialRect.width),
+  Math.round(initialRect.height),
+  false
+);
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -41,7 +48,7 @@ function initThreeViewer(wrapper, canvas) {
 
   const camera = new THREE.PerspectiveCamera(
     38,
-    wrapper.clientWidth / wrapper.clientHeight,
+    initialRect.width / initialRect.height
     0.01,
     1000
   );
@@ -219,20 +226,24 @@ function initThreeViewer(wrapper, canvas) {
     floor.position.y = -0.002;
   }
 
-  function resizeViewer() {
-    const width = wrapper.clientWidth;
-    const height = wrapper.clientHeight;
+function resizeViewer() {
+  const rect = wrapper.getBoundingClientRect();
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
 
-    if (!width || !height) return;
+  if (!width || !height) return;
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(width, height, false);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(width, height, false);
 
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
 
-    renderer.render(scene, camera);
-  }
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+
+  renderer.render(scene, camera);
+}
 
   let animationFrameId = null;
 
