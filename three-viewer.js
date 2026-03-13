@@ -34,7 +34,7 @@ function initThreeViewer(wrapper, canvas) {
   renderer.toneMappingExposure = 1.2;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color((0xffffff);
+  scene.background = new THREE.Color(0xffffff);
 
   const initialRect = wrapper.getBoundingClientRect();
   const initialWidth = Math.max(1, Math.round(initialRect.width));
