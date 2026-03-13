@@ -404,7 +404,7 @@ p {
 
     .glb-viewer-grid {
         grid-template-columns: 1fr;
-        gap: 32px;
+        gap: 56px;
     }
 
     .glb-copy {
