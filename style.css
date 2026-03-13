@@ -292,7 +292,7 @@ p {
     margin: 0 auto;
     display: grid;
     grid-template-columns: 0.55fr 1.45fr;
-    gap: 32px;
+    gap: 56px;
     align-items: center;
 }
 
@@ -404,7 +404,7 @@ p {
 
     .glb-viewer-grid {
         grid-template-columns: 1fr;
-        gap: 56px;
+        gap: 32px;
     }
 
     .glb-copy {
