@@ -292,7 +292,7 @@ p {
     margin: 0 auto;
     display: grid;
     grid-template-columns: 0.55fr 1.45fr;
-    gap: 100px;
+    gap: 400px;
     align-items: center;
 }
 
