@@ -34,7 +34,7 @@ function initThreeViewer(wrapper, canvas) {
   renderer.toneMappingExposure = 1.2;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf3f3f3);
+  scene.background = new THREE.Color(0x2f343a);
 
   const initialRect = wrapper.getBoundingClientRect();
   const initialWidth = Math.max(1, Math.round(initialRect.width));
@@ -91,22 +91,24 @@ function initThreeViewer(wrapper, canvas) {
   fillLight.position.set(-4.0, 3.5, -2.0);
   scene.add(fillLight);
 
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(40, 40),
-    new THREE.MeshStandardMaterial({
-      color: 0xf3f3f3,
-      roughness: 1
-    })
-  );
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(40, 40),
+  new THREE.MeshStandardMaterial({
+    color: 0x2f343a,
+    roughness: 1
+  })
+);
+
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.002;
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const shadowPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(40, 40),
-    new THREE.ShadowMaterial({ opacity: 0.14 })
-  );
+const shadowPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(40, 40),
+  new THREE.ShadowMaterial({ opacity: 0.22 })
+);
+
   shadowPlane.rotation.x = -Math.PI / 2;
   shadowPlane.position.y = 0;
   shadowPlane.receiveShadow = true;
@@ -174,23 +176,23 @@ function initThreeViewer(wrapper, canvas) {
     const fittedSize = fittedBox.getSize(new THREE.Vector3());
     const maxDim = Math.max(fittedSize.x, fittedSize.y, fittedSize.z);
 
-    const targetY = Math.max(fittedSize.y * 0.22, 0.45);
-    controlsRef.target.set(0, targetY, 0);
+const targetY = Math.max(fittedSize.y * 0.32, 0.6);
+controlsRef.target.set(0, targetY, 0);
 
-    const fov = THREE.MathUtils.degToRad(cameraRef.fov);
-    let distance = maxDim / (2 * Math.tan(fov / 2));
-    distance *= mobile ? 1.12 : 0.95;
+const fov = THREE.MathUtils.degToRad(cameraRef.fov);
+let distance = maxDim / (2 * Math.tan(fov / 2));
+distance *= mobile ? 1.02 : 0.88;
 
-    cameraRef.near = Math.max(distance / 100, 0.01);
-    cameraRef.far = Math.max(distance * 30, 100);
-    cameraRef.updateProjectionMatrix();
+cameraRef.near = Math.max(distance / 100, 0.01);
+cameraRef.far = Math.max(distance * 30, 100);
+cameraRef.updateProjectionMatrix();
 
-    cameraRef.position.set(
-      distance * 0.08,
-      distance * 1.35,
-      distance * 0.78
-    );
-    cameraRef.lookAt(controlsRef.target);
+cameraRef.position.set(
+  -distance * 0.62,
+  distance * 1.08,
+  distance * 0.52
+);
+cameraRef.lookAt(controlsRef.target);
 
     controlsRef.minDistance = Math.max(maxDim * 0.4, 0.8);
     controlsRef.maxDistance = Math.max(maxDim * 6, 30);
