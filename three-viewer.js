@@ -34,7 +34,7 @@ function initThreeViewer(wrapper, canvas) {
   renderer.toneMappingExposure = 1.2;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x2f343a);
+  scene.background = new THREE.Color((0xffffff);
 
   const initialRect = wrapper.getBoundingClientRect();
   const initialWidth = Math.max(1, Math.round(initialRect.width));
@@ -94,7 +94,7 @@ function initThreeViewer(wrapper, canvas) {
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40),
   new THREE.MeshStandardMaterial({
-    color: 0x2f343a,
+    color: 0xffffff,
     roughness: 1
   })
 );
@@ -106,7 +106,7 @@ const floor = new THREE.Mesh(
 
 const shadowPlane = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40),
-  new THREE.ShadowMaterial({ opacity: 0.22 })
+  new THREE.ShadowMaterial({ opacity: 0.14 })
 );
 
   shadowPlane.rotation.x = -Math.PI / 2;
